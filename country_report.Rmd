@@ -1,0 +1,84 @@
+---
+title: "EVS Data Analysis by Country"
+author: "Kangrui Liu"
+date: "`r Sys.Date()`"
+output: html_document
+params:
+  country: "Austria"
+---
+
+```{r setup, include=FALSE}
+library(haven)
+library(dplyr)
+library(ggplot2)
+library(texreg)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+This report explores the 2017 European Values Study (EVS) for `r params$country`, focusing on two variables measuring attitudes toward gender roles (v72) and immigration (v80). The analysis includes descriptive statistics, visualization of how these attitudes change with age, and regression modeling incorporating age, age squared, sex, and education.
+
+# Data Preparation
+
+```{r}
+load("data/evs_clean.RData")
+
+evs_country <- evs_clean %>%
+  filter(country == params$country)
+```
+
+# Descriptive Statistics
+
+## Continuous Variables
+
+```{r}
+evs_country %>%
+  dplyr::select(age, v72, v80) %>%
+  summary()
+```
+
+## Categorical Variables
+
+```{r}
+evs_country %>%
+  dplyr::select(sex, education) %>%
+  lapply(table)
+```
+
+# Visualizations
+
+## v72 by Age
+
+```{r}
+ggplot(evs_country, aes(x = age, y = v72)) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(method = "loess") +
+  labs(title = paste("v72 vs Age in", params$country), x = "Age", y = "v72")
+```
+
+## v80 by Age
+
+```{r}
+ggplot(evs_country, aes(x = age, y = v80)) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(method = "loess") +
+  labs(title = paste("v80 vs Age in", params$country), x = "Age", y = "v80")
+```
+
+# Regression Analysis
+
+```{r}
+mod1 <- lm(v72 ~ age + age_sq + sex + education, data = evs_country)
+mod2 <- lm(v80 ~ age + age_sq + sex + education, data = evs_country)
+
+screenreg(list("v72" = mod1, "v80" = mod2))
+```
+
+# Dynamic Interpretation
+
+In `r params$country`, the regression results show that sex has a `r ifelse(coef(summary(mod1))["sex","Estimate"] > 0, "positive", "negative")` relationship with attitudes towards gender roles (v72) (Coefficient = `r round(coef(summary(mod1))["sex","Estimate"], 2)`; p-value = `r round(coef(summary(mod1))["sex","Pr(>|t|)"], 3)`). For attitudes towards immigration (v80), sex shows a `r ifelse(coef(summary(mod2))["sex","Estimate"] > 0, "positive", "negative")` relationship (Coefficient = `r round(coef(summary(mod2))["sex","Estimate"], 2)`; p-value = `r round(coef(summary(mod2))["sex","Pr(>|t|)"], 3)`).
+
+# Summary
+
+This report provides a detailed overview of attitudes towards gender roles and immigration in `r params$country`, highlighting key demographic insights, visualizing how these attitudes vary by age, and exploring their statistical relationships with demographic predictors.
