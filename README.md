@@ -46,7 +46,7 @@ To generate batch reports for each country, run the following script:
 source("generate_reports.R")
 ```
 
-This script loops over each country and produces individual HTML reports stored in the `reports/` folder.
+This script loops over each country and produces individual HTML reports stored in the `reports/` folder. Please note that each country uses its abbreviated name.
 
 ---
 
