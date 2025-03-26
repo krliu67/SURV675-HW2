@@ -4,13 +4,14 @@ author: "Kangrui Liu"
 date: "`r Sys.Date()`"
 output: html_document
 params:
-  country: "Austria"
+  country: "AL"
 ---
 
 ```{r setup, include=FALSE}
 library(haven)
 library(dplyr)
 library(ggplot2)
+library(knitr)
 library(texreg)
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -42,8 +43,13 @@ evs_country %>%
 
 ```{r}
 evs_country %>%
-  dplyr::select(sex, education) %>%
-  lapply(table)
+  count(sex) %>%
+  kable(caption = "Frequency Table for Sex")
+
+evs_country %>%
+  count(education) %>%
+  kable(caption = "Frequency Table for Education")
+
 ```
 
 # Visualizations
@@ -51,20 +57,21 @@ evs_country %>%
 ## v72 by Age
 
 ```{r}
-ggplot(evs_country, aes(x = age, y = v72)) +
-  geom_point(alpha = 0.3) +
-  geom_smooth(method = "loess") +
-  labs(title = paste("v72 vs Age in", params$country), x = "Age", y = "v72")
+ggplot(evs_country, aes(x = cut_width(age, width=10), y = v72)) +
+  geom_boxplot(fill = "lightblue") +
+  labs(title = "v72 by Age Group", x = "Age Group", y = "v72")
 ```
+> **Interpretation (v72):** The boxplot illustrates how attitudes towards gender roles (`v72`) vary across different age groups in `r params$country`. Middle-aged groups generally show slightly higher median scores, indicating potentially different attitudes compared to younger and older age groups in this country.
+
 
 ## v80 by Age
 
 ```{r}
-ggplot(evs_country, aes(x = age, y = v80)) +
-  geom_point(alpha = 0.3) +
-  geom_smooth(method = "loess") +
-  labs(title = paste("v80 vs Age in", params$country), x = "Age", y = "v80")
+ggplot(evs_country, aes(x = cut_width(age, width=10), y = v80)) +
+  geom_boxplot(fill = "lightblue") +
+  labs(title = "v80 by Age Group", x = "Age Group", y = "v80")
 ```
+> **Interpretation (v80):** This plot displays the variation in attitudes towards immigration (`v80`) across age groups in `r params$country`. Middle-aged respondents typically exhibit higher median values, suggesting generational influences on attitudes toward immigration policies within this country context.
 
 # Regression Analysis
 
