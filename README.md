@@ -30,7 +30,7 @@ EVS_Project/
 │
 ├── country_report.Rmd      # Parameterized R Markdown for batch reporting
 ├── generate_reports.R      # Script to generate batch reports
-├── reports/                # Output folder for generated HTML reports
+├── batch/                # Output folder for generated HTML reports
 └── README.md               # This file
 ```
 
